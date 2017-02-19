@@ -1,0 +1,83 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<script type="text/javascript">
+function sendCommand(uri) {
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.open("POST", uri, false);
+	xmlhttp.send();
+        if (xmlhttp.status === 200) {
+            return JSON.parse(xmlhttp.responseText)
+        }
+}
+function getPlaylist()
+{
+    setTimeout(function() {
+    var playlistResult = sendCommand('list');
+    playlistResult.stations.sort();
+    for (var i = 0; i < playlistResult.stations.length; i++)
+    {
+        var node=document.createElement("li");
+        var link = document.createElement("a");
+        link.setAttribute('href', '#');
+        var callback = (function() {
+            var command = '/play/' + playlistResult.stations[i];
+            return function(event) {
+                sendCommand(command);
+		event.preventDefault();
+            }
+        })();
+
+	if (link.addEventListener) {
+            link.addEventListener("click", callback, false);
+        } else {
+            if (link.attachEvent) {
+                link.attachEvent("click", callback);
+            }
+        }
+        link.innerHTML = playlistResult.stations[i];
+        node.appendChild(link);
+        document.getElementById("stations").appendChild(node);
+    }
+    }, 500);
+}
+</script>
+<style>
+	* {
+		margin: 0;
+		padding: 0;
+		border: 0;
+	}
+
+	body {
+		background-color:#000
+	}
+
+        a:hover {
+                text-decoration: underline;
+        }
+
+        li {
+		width: 100%;
+	}
+	
+	li a {
+                font-size: 32px;
+                color: limegreen;
+                list-style-type: none;
+                font-family: monospace;
+		display: block;
+		padding: 15px;
+		border-bottom: 1px solid #111;
+		text-decoration: none;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
+        }
+</style>
+</head>
+<body onload="getPlaylist()">
+<ul id="stations">
+</ul>
+</body>
+</html>
