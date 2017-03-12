@@ -1,83 +1,104 @@
 <html>
 <head>
+<title>shradio</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
 <script type="text/javascript">
-function sendCommand(uri) {
-	var xmlhttp = new XMLHttpRequest();
-	xmlhttp.open("POST", uri, false);
-	xmlhttp.send();
+    function sendCommand(uri) {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("POST", uri, false);
+        xmlhttp.send();
         if (xmlhttp.status === 200) {
             return JSON.parse(xmlhttp.responseText)
         }
-}
-function getPlaylist()
-{
-    setTimeout(function() {
-    var playlistResult = sendCommand('list');
-    playlistResult.stations.sort();
-    for (var i = 0; i < playlistResult.stations.length; i++)
-    {
-        var node=document.createElement("li");
-        var link = document.createElement("a");
-        link.setAttribute('href', '#');
-        var callback = (function() {
-            var command = '/play/' + playlistResult.stations[i];
-            return function(event) {
-                sendCommand(command);
-		event.preventDefault();
-            }
-        })();
-
-	if (link.addEventListener) {
-            link.addEventListener("click", callback, false);
-        } else {
-            if (link.attachEvent) {
-                link.attachEvent("click", callback);
-            }
-        }
-        link.innerHTML = playlistResult.stations[i];
-        node.appendChild(link);
-        document.getElementById("stations").appendChild(node);
     }
-    }, 500);
-}
+
+    function getPlaylist()
+    {
+        setTimeout(function() {
+            var playlistResult = sendCommand('list');
+            playlistResult.stations.sort();
+            var activeNode;
+            for (var i = 0; i < playlistResult.stations.length; i++) {
+                var node=document.createElement("li");
+                var link = document.createElement("a");
+                link.setAttribute('href', '#');        
+                
+                var callback = (function() {
+                    var command = '/play/' + playlistResult.stations[i];
+	            var currentNode = node;
+                    return function(event) {
+                        activeNode.className = '';
+	                activeNode = currentNode;
+	                activeNode.className = 'active';
+	                sendCommand(command);
+	                event.preventDefault();
+                    }
+                })();
+        
+                if (link.addEventListener) {
+                    link.addEventListener("click", callback, false);
+                } else {
+                    if (link.attachEvent) {
+                        link.attachEvent("click", callback);
+                    }
+                }
+        
+                link.textContent = playlistResult.stations[i];
+                node.appendChild(link);
+                if (playlistResult.stations[i] === playlistResult.playing) {
+	            activeNode = node;
+	        }
+                
+                document.getElementById("stations").appendChild(node);
+            }
+            activeNode.className = 'active';
+        }, 500);
+    }
 </script>
 <style>
-	* {
-		margin: 0;
-		padding: 0;
-		border: 0;
-	}
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
 
-	body {
-		background-color:#000
-	}
+body {
+    background-color:#000
+}
+  
+#stations li {
+    display: block;
+}
 
-        a:hover {
-                text-decoration: underline;
-        }
+#stations li a {
+    font-size: 20px;
+    color: rgb(11, 140, 100);
+    list-style-type: none;
+    font-family: serif;
+    display: block;
+    padding: 15px;
+    border-bottom: 1px solid #222;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
 
-        li {
-		width: 100%;
-	}
-	
-	li a {
-                font-size: 32px;
-                color: limegreen;
-                list-style-type: none;
-                font-family: monospace;
-		display: block;
-		padding: 15px;
-		border-bottom: 1px solid #111;
-		text-decoration: none;
-		text-overflow: ellipsis;
-		overflow: hidden;
-		white-space: nowrap;
-        }
+#stations li.active {
+    border-left: 3px solid red;
+}
+
+#stations li.active a {
+    padding-left: 12px;
+}
+
+#stations li a:hover {
+    background-color: #222;
+}
 </style>
 </head>
 <body onload="getPlaylist()">
-<ul id="stations">
-</ul>
+  <ul id="stations"></ul>
 </body>
 </html>

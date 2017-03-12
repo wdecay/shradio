@@ -41,18 +41,18 @@ radio_stop () {
 
 case "$1" in
   start)
-     radio_start || exit 1
-     ;;
+    radio_start || exit 1
+    ;;
   stop)
-     radio_stop || exit 1
-     ;;
+    radio_stop || exit 1
+    ;;
   force-reload|restart)
-     radio_stop && sleep 3
-     radio_start || exit 1
-     ;;
+    radio_stop && sleep 3
+    radio_start || exit 1
+    ;;
   *)
-     echo "Usage: /etc/init.d/radio {start|stop|restart|force-reload}"
-     exit 1
+    echo "Usage: /etc/init.d/radio {start|stop|restart|force-reload}"
+    exit 1
 esac
 
 exit 0
