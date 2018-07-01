@@ -1,38 +1,38 @@
 #!/bin/sh
 #
 ### BEGIN INIT INFO
-# Provides:          radio
+# Provides:          shradio
 # Required-Start:    $syslog
 # Required-Stop:     $syslog
 # Should-Start:
 # Should-Stop:
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: radio script
+# Short-Description: shradio script
 # Description:       internet radio
 ### END INIT INFO
 #
 
-PIDFILE=/var/run/radio.pid
-RADIO=/home/pi/radio/radio
+PIDFILE=/var/run/shradio.pid
+SHRADIO=/usr/local/share/shradio/radio.sh
 
 . /lib/lsb/init-functions
 
 if [ "$(id -u)" != "0" ]
 then
-  log_failure_msg "You must be root to start, stop or restart radio."
+  log_failure_msg "You must be root to start, stop or restart shradio."
   exit 1
 fi
 
 radio_start () {
-  log_daemon_msg "Starting radio server" "radio"
-  start-stop-daemon --start --quiet --background --chuid nobody --group audio --umask 0007 --make-pidfile --pidfile $PIDFILE --startas $RADIO
+  log_daemon_msg "Starting shradio server" "shradio"
+  start-stop-daemon --start --quiet --background --chuid nobody --group audio --umask 0007 --make-pidfile --pidfile $PIDFILE --startas $SHRADIO
   log_end_msg $?
   return $?
 }
 
 radio_stop () {
-  log_daemon_msg "Stopping radio server" "radio"
+  log_daemon_msg "Stopping shradio server" "shradio"
   start-stop-daemon --stop --quiet --pidfile $PIDFILE
   log_end_msg $?
   return $?
@@ -51,7 +51,7 @@ case "$1" in
     radio_start || exit 1
     ;;
   *)
-    echo "Usage: /etc/init.d/radio {start|stop|restart|force-reload}"
+    echo "Usage: /etc/init.d/shradio {start|stop|restart|force-reload}"
     exit 1
 esac
 

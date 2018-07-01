@@ -10,10 +10,10 @@ declare -A STATIONS=(
   [Virgin RADIO]='mpg321 http://vr-live-mp3-128.scdn.arkena.com/virginradio.mp3'
 );
 
-SOCKET=/var/tmp/radio.sock
+SOCKET=`mktemp -u --suffix=shradio.sock`
 DEFAULT_STATION=mute
 DIRECTORY=$(dirname "$0")
-CURRENT_FILE=`mktemp -u --suffix=radio`
+CURRENT_FILE=`mktemp -u --suffix=shradio`
 HOME_PAGE=`cat "$DIRECTORY/index.html"`
 
 handle_request() {
@@ -40,7 +40,7 @@ handle_request() {
 
 (
 	while true; do
-		PIPE=`mktemp -u --suffix=radio`
+		PIPE=`mktemp -u --suffix=shradio`
 		mkfifo $PIPE		
 		cat $PIPE | stdbuf -oL nc -l -q 0 -p 8085 > >(			
 			read line; handle_request $line > $PIPE
