@@ -42,13 +42,13 @@
                     
                     var callback = (function() {
                         var command = '/play/' + stations[i];
-                    var currentNode = node;
+                        var currentNode = node;
                         return function(event) {
                             activeNode.className = '';
-                        activeNode = currentNode;
-                        activeNode.className = 'active';
-                        sendCommand(command);
-                        event.preventDefault();
+                            activeNode = currentNode;
+                            activeNode.className = 'active';
+                            sendCommand(command);
+                            event.preventDefault();
                         }
                     })();
             
@@ -116,6 +116,6 @@ body {
 </style>
 </head>
 <body onload="getPlaylist()">
-  <ul id="stations"></ul>
+    <ul id="stations"></ul>
 </body>
 </html>

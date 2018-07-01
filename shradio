@@ -20,39 +20,39 @@ SHRADIO=/usr/local/share/shradio/radio.sh
 
 if [ "$(id -u)" != "0" ]
 then
-  log_failure_msg "You must be root to start, stop or restart shradio."
-  exit 1
+    log_failure_msg "You must be root to start, stop or restart shradio."
+    exit 1
 fi
 
 radio_start () {
-  log_daemon_msg "Starting shradio server" "shradio"
-  start-stop-daemon --start --quiet --background --chuid nobody --group audio --umask 0007 --make-pidfile --pidfile $PIDFILE --startas $SHRADIO
-  log_end_msg $?
-  return $?
+    log_daemon_msg "Starting shradio server" "shradio"
+    start-stop-daemon --start --quiet --background --chuid nobody --group audio --umask 0007 --make-pidfile --pidfile $PIDFILE --startas $SHRADIO
+    log_end_msg $?
+    return $?
 }
 
 radio_stop () {
-  log_daemon_msg "Stopping shradio server" "shradio"
-  start-stop-daemon --stop --quiet --pidfile $PIDFILE
-  log_end_msg $?
-  return $?
+    log_daemon_msg "Stopping shradio server" "shradio"
+    start-stop-daemon --stop --quiet --pidfile $PIDFILE
+    log_end_msg $?
+    return $?
 }
 
 
 case "$1" in
-  start)
-    radio_start || exit 1
-    ;;
-  stop)
-    radio_stop || exit 1
-    ;;
-  force-reload|restart)
-    radio_stop && sleep 3
-    radio_start || exit 1
-    ;;
-  *)
-    echo "Usage: /etc/init.d/shradio {start|stop|restart|force-reload}"
-    exit 1
+    start)
+        radio_start || exit 1
+        ;;
+    stop)
+        radio_stop || exit 1
+        ;;
+    force-reload|restart)
+        radio_stop && sleep 3
+        radio_start || exit 1
+        ;;
+    *)
+        echo "Usage: /etc/init.d/shradio {start|stop|restart|force-reload}"
+        exit 1
 esac
 
 exit 0
