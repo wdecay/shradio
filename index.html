@@ -4,55 +4,72 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 <script type="text/javascript">
-    function sendCommand(uri) {
+    function sendCommand(uri, onload) {
         var xmlhttp = new XMLHttpRequest();
-        xmlhttp.open("POST", uri, false);
-        xmlhttp.send();
-        if (xmlhttp.status === 200) {
-            return JSON.parse(xmlhttp.responseText)
+        xmlhttp.open("POST", uri, true);
+        xmlhttp.onload = onload;
+        xmlhttp.onerror = function(e) {
+            console.log('error');
         }
+        xmlhttp.send();
     }
 
     function getPlaylist()
     {
         setTimeout(function() {
-            var playlistResult = sendCommand('list');
-            playlistResult.stations.sort();
-            var activeNode;
-            for (var i = 0; i < playlistResult.stations.length; i++) {
-                var node=document.createElement("li");
-                var link = document.createElement("a");
-                link.setAttribute('href', '#');        
+            sendCommand('list', function(e) {
+                var xhr = e.target;
+                if (xhr.status !== 200) {                    
+                    return;
+                }
                 
-                var callback = (function() {
-                    var command = '/play/' + playlistResult.stations[i];
-	            var currentNode = node;
-                    return function(event) {
-                        activeNode.className = '';
-	                activeNode = currentNode;
-	                activeNode.className = 'active';
-	                sendCommand(command);
-	                event.preventDefault();
-                    }
-                })();
-        
-                if (link.addEventListener) {
-                    link.addEventListener("click", callback, false);
-                } else {
-                    if (link.attachEvent) {
-                        link.attachEvent("click", callback);
+                var stations = xhr.responseText.trim().split(/\r?\n/);
+                var currentStation = null;
+                for (var i = 0; i < stations.length; i++) {
+                    if (stations[i].startsWith('*')) {
+                        stations[i] = stations[i].substring(1, stations[i].length);
+                        currentStation = stations[i];
                     }
                 }
-        
-                link.textContent = playlistResult.stations[i];
-                node.appendChild(link);
-                if (playlistResult.stations[i] === playlistResult.playing) {
-	            activeNode = node;
-	        }
                 
-                document.getElementById("stations").appendChild(node);
-            }
-            activeNode.className = 'active';
+                stations.sort();
+
+                var activeNode;
+                for (var i = 0; i < stations.length; i++) {
+                    var node=document.createElement("li");
+                    var link = document.createElement("a");
+                    link.setAttribute('href', '#');        
+                    
+                    var callback = (function() {
+                        var command = '/play/' + stations[i];
+                    var currentNode = node;
+                        return function(event) {
+                            activeNode.className = '';
+                        activeNode = currentNode;
+                        activeNode.className = 'active';
+                        sendCommand(command);
+                        event.preventDefault();
+                        }
+                    })();
+            
+                    if (link.addEventListener) {
+                        link.addEventListener("click", callback, false);
+                    } else {
+                        if (link.attachEvent) {
+                            link.attachEvent("click", callback);
+                        }
+                    }
+            
+                    link.textContent = stations[i];
+                    node.appendChild(link);
+                    if (stations[i] === currentStation) {
+                        activeNode = node;
+                    }
+                    
+                    document.getElementById("stations").appendChild(node);
+                }
+                activeNode.className = 'active';
+            });
         }, 500);
     }
 </script>
